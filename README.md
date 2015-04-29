@@ -3,18 +3,10 @@
 
 代码路径：
 
-|
+--website //网站源码
 
-|
+--spider //爬虫源码
 
-|--website //网站源码
-
-|
-
-|--spider //爬虫源码
-
-|
-
-|--README.md 
+--README.md 
 
 分享想法、乐趣和代码！
