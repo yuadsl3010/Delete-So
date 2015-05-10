@@ -1,0 +1,10 @@
+<html><head><title>status</title></head>
+<body>
+<h1>Status</h1>
+<ul>
+{% for var in status_list %}
+<li>{{ var.name }}</li>
+<li>{{ var.status }}</li>
+{% endfor %}
+</ul>
+</body></html>
