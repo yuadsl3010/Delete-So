@@ -14,7 +14,7 @@ class urlWork(object):
           这个类是用来发送URL请求的。
         '''
         content = "";
-        timeout = 10;
+        timeout = 5;
         socket.setdefaulttimeout(timeout);
         
         try:

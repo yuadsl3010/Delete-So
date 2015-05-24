@@ -9,58 +9,81 @@ class ACcomments(object):
 评论搜集表各项操作
     '''
     __dbinfo = "";
+    __conn = None
+    __cursor = None
         
     def __init__(self, dbinfo):
         self.__dbinfo = dbinfo;
         
     def insert(self, data):
+        total_comm = 0
         try:
             conn = MySQLdb.connect(host = self.__dbinfo.get_host(), \
-                                    port = self.__dbinfo.get_port(), \
-                                    user = self.__dbinfo.get_user(), \
-                                    passwd = self.__dbinfo.get_pwd(), \
-                                    db = self.__dbinfo.get_dbname(), \
-                                    charset = self.__dbinfo.get_charset());
-
+                        port = self.__dbinfo.get_port(), \
+                        user = self.__dbinfo.get_user(), \
+                        passwd = self.__dbinfo.get_pwd(), \
+                        db = self.__dbinfo.get_dbname(), \
+                        charset = self.__dbinfo.get_charset()); 
             cursor = conn.cursor();
-            for j, k in enumerate(data):
-                if k.get_delete() == 1:
-                    cursor.execute("UPDATE accomments SET checkTime = %s, height = %s, siji = %s, zuipao = %s, isDelete = %s WHERE cid = %s", \
-                                   (k.get_check_time(), \
-                                    k.get_height(), \
-                                    k.get_siji(), \
-                                    k.get_zuipao(), \
-                                    k.get_delete(), \
-                                    k.get_cid()));
+            #这个地方传进来的是一个二维数组，类似：
+            #[投稿1, 投稿2, 投稿3...]，而每一个投稿又是：
+            #[评论1，评论2，评论3...]
+            for comm in data:
+                total_comm += 1
+                if int(comm.get_siji()) == 1:
+                    try:
+                        cursor.execute("INSERT INTO accomments_siji(cid, content, userName, quoteCid, layer, acid, height, isDelete, siji, zuipao, checkTime) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", \
+                                                  (comm.get_cid(), \
+                                                   comm.get_content(), \
+                                                   comm.get_user_name(), \
+                                                   comm.get_quote_cid(), \
+                                                   comm.get_layer(), \
+                                                   comm.get_acid(), \
+                                                   comm.get_height(), \
+                                                   comm.get_delete(), \
+                                                   comm.get_siji(), \
+                                                   comm.get_zuipao(), \
+                                                   comm.get_check_time()));
+                    except Exception:
+                        pass
+                elif int(comm.get_delete()) == 1:
+                    try:
+                        cursor.execute("INSERT INTO accomments_delete SELECT * FROM accomments WHERE cid = %s", \
+                                       comm.get_cid());
+                    except Exception:
+                        pass
                 else:
                     try:
                         cursor.execute("INSERT INTO accomments(cid, content, userName, quoteCid, layer, acid, height, isDelete, siji, zuipao, checkTime) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", \
-                                              (k.get_cid(), \
-                                               k.get_content(), \
-                                               k.get_user_name(), \
-                                               k.get_quote_cid(), \
-                                               k.get_layer(), \
-                                               k.get_acid(), \
-                                               k.get_height(), \
-                                               k.get_delete(), \
-                                               k.get_siji(), \
-                                               k.get_zuipao(), \
-                                               k.get_check_time()));
-                    except Exception as e:
+                                              (comm.get_cid(), \
+                                               comm.get_content(), \
+                                               comm.get_user_name(), \
+                                               comm.get_quote_cid(), \
+                                               comm.get_layer(), \
+                                               comm.get_acid(), \
+                                               comm.get_height(), \
+                                               comm.get_delete(), \
+                                               comm.get_siji(), \
+                                               comm.get_zuipao(), \
+                                               comm.get_check_time()));
+                    except Exception:
                         cursor.execute("UPDATE accomments SET checkTime = %s, height = %s, siji = %s, zuipao = %s, isDelete = %s WHERE cid = %s", \
-                                       (k.get_check_time(), \
-                                        k.get_height(), \
-                                        k.get_siji(), \
-                                        k.get_zuipao(), \
-                                        k.get_delete(), \
-                                        k.get_cid()));
+                                       (comm.get_check_time(), \
+                                        comm.get_height(), \
+                                        comm.get_siji(), \
+                                        comm.get_zuipao(), \
+                                        comm.get_delete(), \
+                                        comm.get_cid()));
                         pass;#print("未知错误: ", e);
-            
-            cursor.close();
+                
+            cursor.close(); 
             conn.commit();
-            conn.close();        
-        except Exception as e:
-            pass;
+            conn.close();  
+                                  
+        except Exception:    
+            return 0
+        
+        return total_comm
         
     def clear(self):
         try:
@@ -72,21 +95,40 @@ class ACcomments(object):
                                     charset = self.__dbinfo.get_charset());
             cursor = conn.cursor();
             deleteSor = conn.cursor();
-            row = [];
             try:
-                cursor.execute("SELECT cid FROM accomments WHERE height = 0 AND isDelete = 0 AND siji = 0 AND zuipao = 0 AND checkTime < DATE_SUB(NOW(), INTERVAL 3 DAY) LIMIT 1000");
-                results = cursor.fetchall()
-                for data in results:
-                    deleteSor.execute("DELETE FROM accomments WHERE cid = %s LIMIT 1", (data));
-                    deleteSor.execute("DELETE FROM accommentsstore WHERE cid = %s LIMIT 3000", (data));
+                cursor.execute("DELETE FROM accomments WHERE checkTime < DATE_SUB(NOW(), INTERVAL 3 DAY) LIMIT 1000");
             except Exception as e:
-                print("未知错误：", e);
+                #print ("未知错误：", e)
+                pass
                 
             cursor.close();
             deleteSor.close();
             conn.commit();
             conn.close();
         except Exception as e:
-            return 0;
-        return row;
+            pass
+        
+        return
     
+    def open_conn(self):
+        try:
+            self.__conn = MySQLdb.connect(host = self.__dbinfo.get_host(), \
+                        port = self.__dbinfo.get_port(), \
+                        user = self.__dbinfo.get_user(), \
+                        passwd = self.__dbinfo.get_pwd(), \
+                        db = self.__dbinfo.get_dbname(), \
+                        charset = self.__dbinfo.get_charset()); 
+            self.__cursor = self.__conn.cursor();
+        except Exception as e:
+            print("open error：", e);
+            return False
+        
+        return True
+            
+    def close_conn(self):
+        try:
+            self.__cursor.close(); 
+            self.__conn.commit();
+            self.__conn.close();   
+        except Exception as e:
+            print ("close error：", e)

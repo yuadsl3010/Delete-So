@@ -37,3 +37,22 @@ AC状态记录
         except Exception as e:
             pass;
         
+    def score(self, data):
+        try:
+            conn = MySQLdb.connect(host = self.__dbinfo.get_host(), \
+                                    port = self.__dbinfo.get_port(), \
+                                    user = self.__dbinfo.get_user(), \
+                                    passwd = self.__dbinfo.get_pwd(), \
+                                    db = self.__dbinfo.get_dbname(), \
+                                    charset = self.__dbinfo.get_charset());
+            cursor = conn.cursor();
+            try:
+                cursor.execute("UPDATE status SET status = NOW(), score = %s WHERE name = 'acscore'", data);
+            except Exception as e:
+                pass;#print("未知错误: ", e);
+            
+            cursor.close();
+            conn.commit();
+            conn.close();        
+        except Exception as e:
+            pass;
