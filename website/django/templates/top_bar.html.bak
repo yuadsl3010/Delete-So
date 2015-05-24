@@ -1,0 +1,53 @@
+<div class="navbar navbar-default navbar-fixed-top" style="background-color: rgb(11, 16, 19);">
+    <div class="container guide-inner">
+        <div class="navbar-collapse collapse">
+            <div class="row">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle btn-info" data-toggle="collapse" data-target=".navbar-collapse">
+                         <span class="icon-bar"></span>
+                         <span class="icon-bar"></span>
+                         <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand acmore" href="http://www.delete.so" title="评论才是本体">Delete.so</a>
+                </div>
+                <div class="col-md-2 col-md-offset-5">
+                    <form class="navbar-form navbar-center navbar-left" role="form" action="search.html">
+                        <div class="form-group">
+                            <input type="text" name="search" id="search" class="form-control " placeholder="ac1584651 或 带带我" pattern="ac\d*|带带我" required="required">
+                        </div>
+                        <button type="submit" id="submit" class="btn btn-default">搜索</button>
+                    </form>
+                </div>
+                <ul class="nav navbar-nav navbar-right">
+                     <li style="border-right:0px solid #A8A8A8">
+                            <ul class="nav navbar-nav">
+                                <li class="dropdown">
+                                    <a>分享<span class="caret"></span></a>
+                                    <ul class="navbar-top-li-dropdown">
+                                        <li>
+                                            <a target="_blank" href="http://v.t.sina.com.cn/share/share.php?title=来这里，看大家正在讨论的，查猴子已经删除的。这里……是评论的OB视角。&url=http://www.delete.so">
+                                            <img title="分享到新浪微博" src="/static/asset/image/share/sina.png" height="50" width="50"/>新浪微博</a>
+                                        </li>
+                                        <li>
+                                            <a target="_blank" href="http://share.v.t.qq.com/index.php?c=share&a=index&title=来这里，看大家正在讨论的，查猴子已经删除的。这里……是评论的OB视角。&url=http://www.delete.so">
+                                            <img title="分享到腾讯微博" src="/static/asset/image/share/qq.png" height="50" width="50"/>腾讯微博</a>
+                                        </li>
+                                        <li>
+                                            <a target="_blank" href="http://share.renren.com/share/buttonshare?link=http://www.delete.so">
+                                            <img title="分享到人人网" src="/static/asset/image/share/renren.png" height="50" width="50"/>人人网</a>
+                                        </li>
+                                        <li>
+                                            <a target="_blank" href="http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://www.delete.so">
+                                            <img title="分享到QQ空间" src="/static/asset/image/share/zone.png" height="50" width="50"/>QQ空间</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                     </li>
+                    <li class=""><a href="http://item.taobao.com/item.htm?id=42893343907">支持我们</a></li>
+                    <li class="btn-info text-center" onclick="smooth_move_herf('#contact')"><a>留言<span class="icon icon-small icon-comment"></span></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

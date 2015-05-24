@@ -18,12 +18,19 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.conf.urls.static import static
-from View.index import init_delete_so, refresh_ds_comments
+from View.index import *
+from View.json import *
+from View.secret import *
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', init_delete_so),
+    url(r'^search.html$', do_search),
     url(r'^json/refresh_ds_comments/$', refresh_ds_comments),
+    url(r'^json/refresh_main_page_view/$', refresh_main_page_view),
+    url(r'^json/get_search_results/$', get_search_results),
+    url(r'^json/get_spider_speed/$', get_spider_speed),
+    url(r'^secret/add_black/$', add_black),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) 

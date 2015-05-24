@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Delete So">
+    <meta name="author" content="yuzhenchuan@delete.so">
+    <title>Delete So</title>
+    <link rel="shortcut icon" href="/static/asset/icon/favicon.ico"/>
+    <link rel="bookmark" href="/static/asset/icon/favicon.ico" type="image/x-icon"/>
+    <!-- Bootstrap & Snippet plugin core CSS -->
+    <link href="/static/asset/css/flat_ui.css" rel="stylesheet">
+    <link href="/static/asset/css/core.css" rel="stylesheet">
+    <link href="/static/asset/css/cikonss.css" rel="stylesheet">
+    <link href="/static/asset/css/message.css" rel="stylesheet">
+    <script type="text/javascript" charset="utf-8" src="/static/ueditor/ueditor.config.js"></script>
+    <script type="text/javascript" charset="utf-8" src="/static/ueditor/ueditor.all.js"> </script>
+    <script src="/static/ueditor/ueditor.parse.js"></script>
+</head>
+<body>
+<div id="notifications">
+    {% include 'top_bar.html' %}  
+    {% include 'message.html' %} 
+    {% include 'second_bar_search.html' %}
+
+    {% include 'search_result.html' %}
+
+    {% include 'comments.html' %} 
+
+    {% include 'support.html' %} 
+    
+    {% include 'share.html' %} 
+    
+    {% include 'announce.html' %} 
+</div>
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="/static/asset/js/jquery-2.1.1.min.js"></script>
+<script src="/static/asset/js/stickUI.js"></script>
+<script src="/static/asset/js/base.js"></script>
+<script src="/static/asset/js/message.js"></script>
+<script src="/static/asset/js/search.js"></script>
+<script src="/static/asset/js/comments.js"></script>
+<!--<script src="asset/js/search.js"></script>-->
+<!--
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3215dda6a2b150164def1bbb8e2fdb49' type='text/javascript'%3E%3C/script%3E"));
+</script>
+-->
+</body>
+</html>

@@ -1,0 +1,151 @@
+.btn-block {
+    width: 100%;
+    padding-right: 0;
+    padding-left: 0;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box
+}
+
+.btn {
+    border: none;
+    background: rgb(11, 16, 19);
+    color: white;
+    font-size: 16.5px;
+    text-decoration: none;
+    text-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    -webkit-transition: 0.25s;
+    -moz-transition: 0.25s;
+    -o-transition: 0.25s;
+    transition: 0.25s;
+    -webkit-backface-visibility: hidden;
+}
+
+.btn.btn-large {
+    padding-bottom: 12px;
+    padding-top: 13px; 
+}
+.btn.btn-info {
+    background-color: #3498db;
+}
+.btn.btn-info:hover, .btn.btn-info:focus {
+    background-color: #5dade2; 
+}
+.btn.btn-info:active, .btn.btn-info.active {
+    background-color: #2383c4; 
+}
+
+.btn.btn-danger {
+    background-color: #e74c3c; 
+}
+.btn.btn-danger:hover, .btn.btn-danger:focus {
+    background-color: #ec7063; 
+}
+.btn.btn-danger:active, .btn.btn-danger.active {
+    background-color: #dc2d1b; 
+}
+
+textarea,
+input[type="text"],
+input[type="password"],
+input[type="datetime"],
+input[type="datetime-local"],
+input[type="date"],
+input[type="month"],
+input[type="time"],
+input[type="week"],
+input[type="number"],
+input[type="email"],
+input[type="url"],
+input[type="search"],
+input[type="tel"],
+input[type="color"],
+.uneditable-input {
+    border: 2px solid #e4e7ee;
+    color: #34495e;
+    font-family: "Hevetica Neue", "Lucida Grande", "微软雅黑";
+    font-size: 14px;
+    padding: 8px 0 9px 10px;
+    margin-top: -3px;
+    text-indent: 1px;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none; 
+}
+  textarea:-moz-placeholder,
+  input[type="text"]:-moz-placeholder,
+  input[type="password"]:-moz-placeholder,
+  input[type="datetime"]:-moz-placeholder,
+  input[type="datetime-local"]:-moz-placeholder,
+  input[type="date"]:-moz-placeholder,
+  input[type="month"]:-moz-placeholder,
+  input[type="time"]:-moz-placeholder,
+  input[type="week"]:-moz-placeholder,
+  input[type="number"]:-moz-placeholder,
+  input[type="email"]:-moz-placeholder,
+  input[type="url"]:-moz-placeholder,
+  input[type="search"]:-moz-placeholder,
+  input[type="tel"]:-moz-placeholder,
+  input[type="color"]:-moz-placeholder,
+  .uneditable-input:-moz-placeholder {
+    color: #acb6c0; }
+  textarea::-webkit-input-placeholder,
+  input[type="text"]::-webkit-input-placeholder,
+  input[type="password"]::-webkit-input-placeholder,
+  input[type="datetime"]::-webkit-input-placeholder,
+  input[type="datetime-local"]::-webkit-input-placeholder,
+  input[type="date"]::-webkit-input-placeholder,
+  input[type="month"]::-webkit-input-placeholder,
+  input[type="time"]::-webkit-input-placeholder,
+  input[type="week"]::-webkit-input-placeholder,
+  input[type="number"]::-webkit-input-placeholder,
+  input[type="email"]::-webkit-input-placeholder,
+  input[type="url"]::-webkit-input-placeholder,
+  input[type="search"]::-webkit-input-placeholder,
+  input[type="tel"]::-webkit-input-placeholder,
+  input[type="color"]::-webkit-input-placeholder,
+  .uneditable-input::-webkit-input-placeholder {
+    color: #acb6c0; }
+  textarea.placeholder,
+  input[type="text"].placeholder,
+  input[type="password"].placeholder,
+  input[type="datetime"].placeholder,
+  input[type="datetime-local"].placeholder,
+  input[type="date"].placeholder,
+  input[type="month"].placeholder,
+  input[type="time"].placeholder,
+  input[type="week"].placeholder,
+  input[type="number"].placeholder,
+  input[type="email"].placeholder,
+  input[type="url"].placeholder,
+  input[type="search"].placeholder,
+  input[type="tel"].placeholder,
+  input[type="color"].placeholder,
+  .uneditable-input.placeholder {
+    color: #acb6c0; }
+  textarea:focus,
+  input[type="text"]:focus,
+  input[type="password"]:focus,
+  input[type="datetime"]:focus,
+  input[type="datetime-local"]:focus,
+  input[type="date"]:focus,
+  input[type="month"]:focus,
+  input[type="time"]:focus,
+  input[type="week"]:focus,
+  input[type="number"]:focus,
+  input[type="email"]:focus,
+  input[type="url"]:focus,
+  input[type="search"]:focus,
+  input[type="tel"]:focus,
+  input[type="color"]:focus,
+  .uneditable-input:focus {
+    border-color: #3498db;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none; }
