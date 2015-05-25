@@ -1,7 +1,7 @@
 $(window).scroll(refresh_nav);
 
 function smooth_move_herf(para){
-    var pos = $(para).offset().top - 30;
+    var pos = $(para).offset().top - 80;
     $("html,body").animate({scrollTop: pos}, 500); 
     return false;
 }
@@ -93,6 +93,38 @@ function build_ac_comments(data) {
     });
     
     return html;
+}
+/*
+error code:
+    0: OK
+    1: Invalid Params
+*/
+//服务器返回消息
+function check_responds(json) {
+    result = false;
+    switch (json.status) {
+    case 0:
+        if (json.message != undefined) {
+            send_warn(json.message);
+        }
+
+        result = true;
+        break;
+    case 1:
+        if (json.message != undefined) {
+            send_warn(json.message);
+        }
+        else {
+            send_warn("参数校验错误！");
+        }
+
+        break;
+    default:
+        //BUG_ON
+        break;
+    }
+
+    return result;
 }
 
 //将图片代码替换成图片

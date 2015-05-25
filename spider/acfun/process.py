@@ -20,6 +20,7 @@ import socket
 import urllib
 import urllib2
 import logging
+import re
 
 class process(Process, urlWork):
     '''
@@ -41,6 +42,8 @@ ACFUN的入口函数在这里。
         
     def work(self):
         workTimeA = time.time() #性能统计
+        
+        #将启动时间写入数据库
         self.initDB()
         #refresh_data = forceRefresh().Get_Global_Buf()
         #urlContentTimeA = time.time() #性能统计
@@ -62,19 +65,25 @@ ACFUN的入口函数在这里。
             
         #self.analyse(refresh_data, urlData)
         #forceRefresh().clear_refresh_data(refresh_data)、
-        #数据准备
-        urlContent = self.sendGet(ACFUN)
-        urlData = self.parse(urlContent)
         
-        #使用map进行多线程分析评论
+        #从acfun首页获取源代码用于解析热门投稿
+        url_data = self.sendGet(ACFUN)
+        
+        #从HTML中得到我们所需要的数据，格式为[[u'/v/ac1873087', u'title="\u5168\u660e\u661f\u70ed\u5531happy"']...]
+        parse_data = self.get_parse_data(url_data)
+        
+        #从每篇投稿中获取基本的信息
+        analyse_data = self.parse(parse_data)
+        
+        #使用map进行多线程分析每篇投稿的评论
         pool = ThreadPool(16) 
-        rows = pool.map(self.analyse, urlData) #这里的输出为ACComments结构体的数组
+        insert_data = pool.map(self.analyse, analyse_data) #这里的输出为ACComments结构体的数组
         pool.close()
         pool.join()
         
         #使用map进行多线程发送评论
         pool = ThreadPool(16) 
-        self.work_score = pool.map(self.ACComments.insert, tuple(rows))
+        self.work_score = pool.map(self.ACComments.insert, tuple(insert_data))
         pool.close()
         pool.join()
             
@@ -83,6 +92,30 @@ ACFUN的入口函数在这里。
         workTimeB = time.time() #性能统计
         self.speed_cal(workTimeB - workTimeA)
         logging.debug("acfun process call done, cost time : " + str(workTimeB - workTimeA) + "\n")
+        
+    def get_parse_data(self, urlContent):
+        parse_data = []
+        
+        pattern_1 = re.compile(r'''
+            <a.*?</a>     
+            ''', re.VERBOSE)
+        pattern_2 = re.compile(r'''
+            /a/ac[0-9]* | /v/ac[0-9]* | /v/ab[0-9]* |     #从<a xxxxx </a>中拿到投稿url和title就OK
+            title=".*?"
+            ''', re.VERBOSE)
+        
+        #按照<a xxxxx </a>解析
+        src = pattern_1.findall(urlContent)
+        
+        #从<a xxxxx </a>中拿到投稿url和title就OK
+        tmp = []
+        for s in src:
+            tmp = pattern_2.findall(s)
+            if len(tmp) == 2:
+                parse_data.append(tmp)
+                
+        return parse_data
+        
     '''
           数据结构约定：
           rows[row[投稿URL, 投稿类型, 投稿标题, UP主, 投稿时间], row, row...]
@@ -91,81 +124,91 @@ ACFUN的入口函数在这里。
         max = 0 #max这个字段用来查询更多的投稿
         now = 0
         rows = []#front_urlData
-        while True:
-            cursor = 0 #保存字符串出现的位置
-            row = ACcommentsInfoPO() #保存一篇投稿抓取的内容
-            
-            #判断是否包含投稿链接
-            cursor = src.find('<a href="')
-            if cursor == -1:
-                break
-            
-            #抓取投稿类型
-            src = src[cursor+9:]
-            if src[0:5] == "/v/ac":
-                row.set_type("视频")
-            elif src[0:5] == "/a/ac":
-                row.set_type("文章")
-            else:
-                continue
-            
-            #判断是否为包含URL地址
-            cursor = src.find('"')
-            if cursor == -1:
-                continue
-            
-            #查询更多的投稿
+        for data in src:
             try:
-                now = int(src[src.find("/ac")+3:cursor])
-                if max < now:
-                    max = now
-            except Exception:
-                max = 0
+                row = ACcommentsInfoPO() #保存一篇投稿抓取的内容
                 
-            #抓取投稿URL
-            row.set_id(src[src.find("/ac")+3:cursor])
-            row.set_url(ACFUN + src[:cursor])
-            src = src[cursor+2:]
-            
-            #进入一些异常判断和投稿标题分析
-            if not src[:23] == 'target="_blank" title="':
+                #获取投稿类型
+                if data[0][0:5] == '/v/ac':
+                    row.set_id(data[0][5:])
+                    row.set_type('视频')
+                elif data[0][0:5] == '/a/ac':
+                    row.set_id(data[0][5:])
+                    row.set_type('文章')
+                elif data[0][0:5] == '/v/ab':
+                    #番剧的id和其他不一样，加负号以示区别
+                    row.set_id('-' + data[0][5:])
+                    row.set_type('番剧')
+                else:
+                    continue
+                
+                #获取acid和url
+                row.set_url(ACFUN + data[0])
+                
+                #max这个字段用来查询更多的投稿，比如我从首页获取的最大投稿是ac190000，那么一会我会多抓去ac188900到ac190000的评论信息
+                if max < int(data[0][5:]):
+                    max = int(data[0][5:])
+                    
+                #到了解析title的时候了，A站的title写的很不规范，以下是我们需要分析的几种情况
+                #情况1 什么都有，开工的时候要注意标题后面的两种冒号： title="标题: 抗战烽火孕育新中国国歌 《义勇军进行曲》唱响世界80年&#13;UP主: 亡是公&#13;发布于 2015-05-24 20:22:26 / 点击数: 2602 / 评论数: 96"
+                #情况2 没有UP主，就一个更新时间，这种数据常见于番剧： title="标题：【四月】幻界战线 &#13;更新至：第8集 &#13;更新于：2015年05月24日"
+                #情况3 这下更牛B，连更新时间都不需要了，一般是推荐 ： title="全明星热唱happy" 
+                #情况4 还有这种有标题但没有UP主的                  ： title="标题: 我爱你 中国（A站爱国兔子合集）"
+                
+                #先过滤掉前面几个字
+                data[1] = data[1][7:]
+                
+                #先排除情况3
+                now = data[1].find('标题')
+                if now == -1:
+                    row.set_title(data[1][:len(data[1])-1].strip())
+                    #然后开始疯狂捏造数据
+                    row.set_up("UP主不详")
+                    row.set_post_time("1992-06-17 01:02:03")
+                else:
+                    data[1] = data[1][3:]
+                    #然后排除情况2
+                    now = data[1].find('更新于')
+                    if now != -1:
+                        now = data[1].find('&#13;')
+                        #获取title
+                        row.set_title(data[1][:now].strip())
+                        #然后也开始疯狂捏造数据
+                        row.set_up("UP主不详")
+                        row.set_post_time("1992-06-17 01:02:03")
+                    else:
+                        now = data[1].find('&#13;')
+                        if now != -1:
+                            #接着处理情况1
+                            #获取title
+                            row.set_title(data[1][:now].strip())
+                            data[1] = data[1][now+1:]
+                            
+                            #获取UP主
+                            now = data[1].find('&#13;')
+                            row.set_up(data[1][9:now])
+                            data[1] = data[1][now+1:]
+                            
+                            #获取投稿时间
+                            now = data[1].find(' / ')
+                            row.set_post_time(data[1][8:now])
+                        else:
+                            #最后是情况4
+                            row.set_title(data[1][:len(data[1])-1].strip())
+                            #然后开始疯狂捏造数据
+                            row.set_up("UP主不详")
+                            row.set_post_time("1992-06-17 01:02:03")
+                    
+            except Exception:
                 continue
-            
-            src = src[27:]
-            cursor = src.find("&#13")
-            if cursor == -1 \
-            or cursor > 150:
-                continue
-            
-            #抓取投稿标题
-            row.set_title(src[:cursor])
-            src = src[cursor+10:]
-            
-            #判断是否为包含UP信息
-            cursor = src.find("&#13")
-            if cursor == -1:
-                continue
-            
-            #抓取UP信息
-            row.set_up(src[:cursor])
-            src = src[cursor+9:]
-            
-            #判断是否为包含投稿时间
-            cursor = src.find(" / ")
-            if cursor == -1:
-                continue
-            
-            #抓取投稿时间
-            row.set_post_time(src[:cursor])
-            src = src[cursor+12:]
-            
-            #将row保存到rows中
+                
             rows.append(row)
-            
+        
+        #开始随机抓取评论
         self.create_more(rows, max)
+        #投稿信息单独放一张表
         self.ACCommentsInfo.insert(rows)
-        #parseTimeB = time.time() #性能统计
-        #print("parse用时:" + str(parseTimeB - parseTimeA))
+           
         return rows
     '''
           数据结构约定：
@@ -174,10 +217,14 @@ ACFUN的入口函数在这里。
     def analyse(self, src):
         #初始化一个row，不然极端情况下程序会崩溃
         row = [] #保存一篇投稿的评论
-        strACid = str(src.get_url())
-        acid = strACid[strACid.find("/ac")+3:]
-        acid = self.clear_acid(acid)
-        url = "http://www.acfun.tv/comment_list_json.aspx?contentId=" + acid + "&currentPage=1"
+        strACid = int(src.get_id())
+        acid = strACid
+        #番剧的id小于0
+        if acid > 0:
+            url = "http://www.acfun.tv/comment_list_json.aspx?contentId=" + str(acid) + "&currentPage=1"
+        else:
+            url = 'http://www.acfun.tv/comment/bangumi/web/list?bangumiId=' + str(-acid) + '&pageNo=1'
+
         #urlCommentTimeA = time.time() #性能统计
         jsonContent = self.sendGet(url)
         flag = True
@@ -205,19 +252,29 @@ ACFUN的入口函数在这里。
             '''
             return 
         
+        #番剧的id小于0
+        try:
+            if acid > 0:
+                json_data = j_obj["commentContentArr"]
+            else:
+                json_data = j_obj['data']["commentContentArr"]
+        except:
+            logging.error("commentContentArr is not exist")
+            return
+        
 		#偶尔会出现找不到commentContentArr的情况
         try:
             #开始解析json评论
-            for m, n in enumerate(j_obj["commentContentArr"]):
+            for m, n in enumerate(json_data):
                 comment = ACcommentsPO() #保存一条评论的内容
                 
                 comment.set_acid(int(acid)) #抓取投稿编号            
-                comment.set_cid(int(j_obj["commentContentArr"][n]["cid"])) #抓取评论cid
-                comment.set_content(j_obj["commentContentArr"][n]["content"]) #抓取评论内容
-                comment.set_user_name(j_obj["commentContentArr"][n]["userName"]) #抓取评论人用户名
-                comment.set_quote_cid(int(j_obj["commentContentArr"][n]["quoteId"])) #抓取引用评论cid
-                comment.set_layer(int(j_obj["commentContentArr"][n]["count"])) #抓取该评论楼层数
-                userID = int(j_obj["commentContentArr"][n]["userID"]) #抓取评论人用户ID
+                comment.set_cid(int(json_data[n]["cid"])) #抓取评论cid
+                comment.set_content(json_data[n]["content"]) #抓取评论内容
+                comment.set_user_name(json_data[n]["userName"]) #抓取评论人用户名
+                comment.set_quote_cid(int(json_data[n]["quoteId"])) #抓取引用评论cid
+                comment.set_layer(int(json_data[n]["count"])) #抓取该评论楼层数
+                userID = int(json_data[n]["userID"]) #抓取评论人用户ID
                 
                 #热评高度，先置为0
                 comment.set_height(0)
@@ -397,9 +454,9 @@ ACFUN的入口函数在这里。
             now_id = str(id - i)
             row.set_id(now_id)
             row.set_url(ACFUN_URL + now_id)
-            row.set_type("秘密")
-            row.set_title("秘密")
-            row.set_up("秘密")
+            row.set_type("类型未知")
+            row.set_title("标题不详")
+            row.set_up("UP主不详")
             row.set_post_time("1992-06-17 01:02:03")
             rows.append(row)
     
@@ -408,11 +465,11 @@ ACFUN的入口函数在这里。
         rows = []
         for item in buf:
             row = ACcommentsInfoPO()
-            row.set_type("秘密")
+            row.set_type("类型未知")
             row.set_id(str(item))
             row.set_url(ACFUN_URL + str(item))
-            row.set_title("秘密")
-            row.set_up("秘密")
+            row.set_title("标题不详")
+            row.set_up("UP主不详")
             row.set_post_time("1992-06-17 01:02:03")
             rows.append(row)
         

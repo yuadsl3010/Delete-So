@@ -38,7 +38,7 @@ function sendComment(param){
     var posMsg = param.posMsg || '0';
     var nameMsg = param.nameMsg;
     if (!textMsg){
-        send_warn("<span>留言失败!</span>请不要空评论就发送好么？");
+        send_warn("<span>留言失败!</span></br>请不要空评论就发送好么？");
         return false;
     }
 
@@ -56,11 +56,11 @@ function sendComment(param){
             var status = json.status;
             if (status == 'bad word!')
             {
-                send_warn("<span>留言失败!</span>留言包含敏感词！");
+                send_warn("<span>留言失败!</span></br>留言包含敏感词！");
             }
             else
             {
-                send_warn("<span>留言成功!</span>欢迎提出建议和想法~");
+                send_ok("<span>留言成功!</span></br>欢迎提出建议和想法~");
             }
         }
     );

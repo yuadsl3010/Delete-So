@@ -68,6 +68,13 @@ function send_center_alert(data){
 function send_warn(data)
 {
 	var image = '<img src="/static/asset/image/message/chuan.JPG" width="100" height="100"/>';
+	var msg_bot = '';
+	var type = 'bounce_';
+	send_bottom_alert(type, image, data, msg_bot);
+}
+
+function send_ok(data) {
+	var image = '<img src="/static/asset/image/message/chuan.JPG" width="100" height="100"/>';
 	var msg_bot = '点击Github地址一起为网站添砖加瓦吧~';
 	var type = 'bounce_';
 	send_bottom_alert(type, image, data, msg_bot);

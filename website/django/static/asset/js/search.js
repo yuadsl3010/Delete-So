@@ -13,22 +13,23 @@ $(document).ready(function(){
     }
     
     getSearchs(u, p);
-    $('button#submit').on('click', function () {
-         var searchText = $('input#search').val();
-         var request = {
+    $('button#submit').on('click', function(event) {
+        event.preventDefault();
+        var searchText = $('input#search').val();
+        var request = {
             QueryString : function(val){
-              var uri = window.location.search;
-              var re = new RegExp("" + val + "=([^\&\?]*)", "ig");
-              return ((uri.match(re))?(uri.match(re)[0].substr(val.length+1)):null);
+            var uri = window.location.search;
+            var re = new RegExp("" + val + "=([^\&\?]*)", "ig");
+            return ((uri.match(re))?(uri.match(re)[0].substr(val.length+1)):null);
             }
-         };
-          var u = searchText;
-          var p = request.QueryString("page");
-          if (p == ""){
-               p = 0;
-          }
-      
-          getSearchs(u, p);
+        };
+        var u = searchText;
+        var p = request.QueryString("page");
+        if (p == ""){
+            p = 0;
+        }
+
+        getSearchs(u, p);
     });
 
     $('div#features').hover(function(){
@@ -82,9 +83,14 @@ function getSearchs(search, page)
             'page': page,
         },
         function(json){
+            if (!check_responds(json)) {
+                return ;
+            }
+
             var total = json.total;
-            if (total == "0"){
+            if (total == 0){
                 $("#total").text("找到或者找不到，都是命运石之门的选择~");
+                $("#resultSearch").html("");
             }
             else{
                 document.getElementById("total").innerHTML = "共有" + total + "个结果：" + (page * 10 + 1) + "-" + (page * 10 + 10);
@@ -119,8 +125,10 @@ function getSearchs(search, page)
 
                 str += $.MakePages({num: page + 1, count: total, size: 10, "long": 5}, 'home', 'reSearch');
                 $("#resultSearch").html(str);
-                $('span.icon-mid').addClass('hidden');
+                //$('span.icon-mid').addClass('hidden');
             }
+            
+            smooth_move_herf("#news");
         }
     );
 }

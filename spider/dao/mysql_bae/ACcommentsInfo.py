@@ -31,7 +31,7 @@ class ACcommentsInfo(object):
                                        k.get_post_time(), \
                                        str(k.get_url())));
                 except Exception as e:
-                    pass;#print("未知错误: ", e);
+                    pass
             
             cursor.close();
             conn.commit();
