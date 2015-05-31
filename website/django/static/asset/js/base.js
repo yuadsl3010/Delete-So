@@ -70,7 +70,7 @@ function build_ac_comments(data) {
         var _html = '<div class="cell" id=' + ind + '>'
             + '<div class="title">'
             + '<h3>' + _index + ' ' + val.type + ' - ' + val.title + '</h3>'
-            + '<div style="padding-left: 25px"><p class="subtext pocket-inserted">' + 'UP主 <a href="javascript:">' + val.up + '</a> | ' + val.postTime + ' | <a target="_blank" href="http://' + val.url + '#area-comment">评论' + val.height + '</a> ' + ' | 详见&gt; ' + '<a class="comhead" target="_blank" href="' + val.url + '">ac' + val.acid + '</a>'+'</p></div></div>';
+            + '<div style="padding-left: 25px"><p class="subtext pocket-inserted">' + 'UP主 <a href="javascript:">' + val.up + '</a> | ' + val.postTime + ' | 详见&gt; ' + '<a class="comhead" target="_blank" href="' + val.url + '">ac' + val.acid + '</a>'+'</p></div></div>';
         html += _html;
         html += '<div class="RightPost">' + '<h4><span class="badge-info">#' + val.layer + '</span>&nbsp;<b>' + val.userName + '</b>&nbsp</h4>' + '<div class="text-show-view"><p>' + rePrint(val.content) + '</p></div></div>';
         //下面这段代码是做楼层叠加的，首页现在要展示被删评论，所以现在不需要了
@@ -233,7 +233,7 @@ jQuery(function($) {
                     0: 'news',
                     1: 'comments',
                     2: 'support',
-                    3: 'share'
+                    3: 'share',
                 },
                 itemClass: 'menuItem',
                 itemHover: 'active'

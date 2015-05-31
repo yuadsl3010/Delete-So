@@ -5,6 +5,7 @@
 
 function showComment(page) {
     var url = "json/refresh_ds_comments/";
+    $("#ds_comments").html("");
     $.get(url,
         {
             'page': page,

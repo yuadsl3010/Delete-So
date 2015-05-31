@@ -16,12 +16,12 @@ from api.base import *
 from django.forms.models import model_to_dict
 from django.http import JsonResponse
 from api.error_code import *
+from api.tools import *
 import urllib
 import re
 
-#缓存首页内容
-# main_page_visit = 0
-# json_main_page = dict()
+#搜索的SQL实例
+ac_finder = ac_comments()
 
 #暂时不校验前端POST的csrf
 #留言的添加和刷新
@@ -99,39 +99,18 @@ def refresh_ds_comments(request):
 
 #首页内容的刷新
 def refresh_main_page_view(request):
-    #首页缓存
-#     global main_page_visit 
-#     global json_main_page
-#     if len(json_main_page) > 0 and main_page_visit < 50:
-#         main_page_visit += 1
-#         return JsonResponse(json_main_page)
-#     
-    #输出数据
     json_result = dict()
-    
-    try:
-        #回显数据的操作
-        delete_contents = db_ac_contents_delete.objects.order_by('?')[:5] #获取5条被删除的评论，用以首页的显示
-        result_contents = []
-        for qs in delete_contents:
-            dict_contents = model_to_dict(qs)
-            acid = dict_contents['acid']
-            try:
-                qs_info = db_ac_contents_info.objects.get(id=acid) #获取这5条评论的投稿信息
-                dict_contents_info = model_to_dict(qs_info)
-            except Exception:
-                dict_contents_info = []
-                
-            dict_contents.update(dict_contents_info)
-            result_contents.append(dict_contents) 
-            
-    except Exception:
-        return JsonResponse(json_result)
-    
-    #构造回显的json
-    json_result['contents_view'] = result_contents
-#     json_main_page = json_result
-#     main_page_visit = 0
+    sql = '''
+            SELECT * FROM (
+                SELECT * FROM accomments_delete 
+                WHERE isDelete = 1 
+                ORDER BY checkTime DESC 
+                LIMIT 5 
+                ) as a
+            LEFT JOIN accommentsinfo as b
+            ON a.acid = b.id
+            '''
+    json_result['contents_view'] = ac_finder.search(sql)
     
     return JsonResponse(json_result)
 
@@ -247,16 +226,6 @@ def get_spider_speed(request):
     
     return JsonResponse(json_result)
 
-#搜索过的投稿放入检索队列中
-def set_list_refresh(acid):
-    return #标记功能并不是那么的需要
-    date = timezone.now().strftime("%Y-%m-%d %H:%M:%S")
-    
-    new_refresh = db_ac_refresh(id=acid,
-                               createTime=date, 
-                               status='0')
-    new_refresh.save() #直接插入数据到留言表即可
-
 #总搜索器，控制搜索的逻辑
 '''
 输入定义--list：
@@ -276,7 +245,7 @@ def finder(input, output, flags):
         search_ac(input[0], input[1], output)
     
     if flags[1]:
-        search_ab(input[0], input[1], output)
+        search_ac(-int(input[0]), input[1], output)
     
     if flags[2]:
         search_foyue(input[1], output)
@@ -287,53 +256,33 @@ def search_ac(search, page, dict):
     page = int(page)
     
     total_searchs = int(db_ac_contents_delete.objects.filter(acid=search).count()) #获取共有多少条搜索结果，以进行分页
-    qs_searchs = db_ac_contents_delete.objects.filter(acid=search)[page*10:page*10+10] #只获取一个页面的搜索结果
-    result_searchs = []
-    qs_info = db_ac_contents_info.objects.get(id=search) #获取这些搜索结果的投稿信息                
-    dict_contents_info = model_to_dict(qs_info)    
-    for qs in qs_searchs:
-        dict_searchs = model_to_dict(qs)
-        dict_searchs.update(dict_contents_info)
-        result_searchs.append(dict_searchs)
-    
-    set_list_refresh(search)
+    sql = '''
+            SELECT * FROM (
+                SELECT * FROM accomments_delete 
+                WHERE acid = %s 
+                ORDER BY layer 
+                LIMIT %s, 10
+                ) as a
+            LEFT JOIN accommentsinfo as b
+            ON a.acid = b.id
+            '''
     #构造回显的json
     dict['total'] += total_searchs
-    dict['result'] += result_searchs
-    
-#ab开头的搜索器
-def search_ab(search, page, dict):
-    search = -int(search)
-    page = int(page)
-    
-    total_searchs = int(db_ac_contents_delete.objects.filter(acid=search).count()) #获取共有多少条搜索结果，以进行分页
-    qs_searchs = db_ac_contents_delete.objects.filter(acid=search)[page*10:page*10+10] #只获取一个页面的搜索结果
-    result_searchs = []
-    qs_info = db_ac_contents_info.objects.get(id=search) #获取这些搜索结果的投稿信息                
-    dict_contents_info = model_to_dict(qs_info)    
-    for qs in qs_searchs:
-        dict_searchs = model_to_dict(qs)
-        dict_searchs.update(dict_contents_info)
-        result_searchs.append(dict_searchs)
-    
-    set_list_refresh(search)
-    #构造回显的json
-    dict['total'] += total_searchs
-    dict['result'] += result_searchs
+    dict['result'] += ac_finder.search(sql, search, page * 10)
     
 #带带我
 def search_foyue(page, dict):
     total_searchs = int(db_ac_contents_siji.objects.all().count()) #获取共有多少条搜索结果，以进行分页
-    qs_searchs = db_ac_contents_siji.objects.order_by('-checkTime')[page*10:page*10+10] #只获取一个页面的搜索结果
-    result_searchs = []
-    for qs in qs_searchs:
-        dict_searchs = model_to_dict(qs)
-        acid = dict_searchs['acid']
-        qs_info = db_ac_contents_info.objects.get(id=acid) #获取这些搜索结果的投稿信息
-        dict_contents_info = model_to_dict(qs_info)
-        dict_searchs.update(dict_contents_info)
-        result_searchs.append(dict_searchs)
+    sql = '''
+            SELECT * FROM (
+                SELECT * FROM accomments_siji 
+                ORDER BY checkTime DESC
+                LIMIT %s, 10
+                ) as a
+            LEFT JOIN accommentsinfo as b
+            ON a.acid = b.id
+            '''
     
     #构造回显的json
     dict['total'] += total_searchs
-    dict['result'] += result_searchs
+    dict['result'] += ac_finder.search(sql, page * 10)

@@ -13,6 +13,7 @@ $(document).ready(function(){
     }
     
     getSearchs(u, p);
+    $('input#search').val(u);
     $('button#submit').on('click', function(event) {
         event.preventDefault();
         var searchText = $('input#search').val();
@@ -53,7 +54,7 @@ function reSearch(param) {
       return ((uri.match(re))?(uri.match(re)[0].substr(val.length+1)):null);
     }
   };
-  var u = request.QueryString("search");
+  var u = $('input#search').val();
   var p = parseInt(param.attr('data-page')) - 1;
   getSearchs(u, p);
 }

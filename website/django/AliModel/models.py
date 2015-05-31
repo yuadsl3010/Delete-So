@@ -1,5 +1,32 @@
-from django.db import models
+from django.db import connection, models
 
+class ac_comments(models.Manager):
+    def search(self, sql, *args):
+        rows = []
+        try:
+            cursor = connection.cursor()
+            cursor.execute(sql, args)
+            fetchall = cursor.fetchall()
+            
+            for obj in fetchall:
+                row = dict()
+                row['cid'] = obj[0]
+                row['content'] = obj[1]
+                row['userName'] = obj[2]
+                row['acid'] = obj[5]
+                row['layer'] = obj[4]
+                row['isDelete'] = obj[7]
+                row['type'] = obj[12]
+                row['title'] = obj[13]
+                row['up'] = obj[14]
+                row['postTime'] = obj[15]
+                row['url'] = obj[16]
+                rows.append(row)
+        except Exception:
+            pass
+            
+        return rows
+    
 # Create your models here.
 class db_status(models.Model):   
     name = models.CharField(primary_key=True, max_length=20)   

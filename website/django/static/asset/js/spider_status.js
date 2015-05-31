@@ -1,5 +1,5 @@
 $(document).ready(function(){
-    get_spider_status();
+    //get_spider_status();
 });
 
 function get_spider_status() {

@@ -405,6 +405,7 @@ ol {
     position: absolute;
     bottom: 0;
     background: transparent;
+    z-index: 1029;
 }
 
 .sub-nav .nav {
