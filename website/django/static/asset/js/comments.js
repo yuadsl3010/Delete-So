@@ -5,7 +5,7 @@
 
 function showComment(page) {
     var url = "json/refresh_ds_comments/";
-    $("#ds_comments").html("");
+    //$("#ds_comments").html("");
     $.get(url,
         {
             'page': page,
@@ -55,6 +55,7 @@ function sendComment(param){
         },
         function(json){
             var status = json.status;
+            showComment(0);
             if (status == 'bad word!')
             {
                 send_warn("<span>留言失败!</span></br>留言包含敏感词！");
@@ -65,8 +66,6 @@ function sendComment(param){
             }
         }
     );
-
-    showComment(0);
 }
 
 

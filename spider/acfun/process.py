@@ -35,7 +35,6 @@ ACFUN的入口函数在这里。
         try:
             #从acfun首页获取源代码用于解析热门投稿
             self.ac_comments = ac_comments
-            logging.warn('tmp_lru start: ')
             url_data = self.sendGet(ACFUN)
             
             #从HTML中得到我们所需要的数据，格式为[[u'/v/ac1873087', u'title="\u5168\u660e\u661f\u70ed\u5531happy"']...]
@@ -59,7 +58,7 @@ ACFUN的入口函数在这里。
             
             #数据清理
             self.clearDB()
-            logging.warn('tmp_lru length: ' + str(self.ac_comments.lru.size))
+            logging.warn('lru length: ' + str(self.ac_comments.lru.size))
                    
         except Exception as e:
             logging.error(str(e))
@@ -289,7 +288,7 @@ ACFUN的入口函数在这里。
             responseText = response.read()
         #之前那种错误处理不行
         except Exception as e:
-            logging.error("encode error:", e)
+            logging.error("foyu encode error, " + str(e))
         encodedFoyu = responseText[responseText.find("佛曰") : responseText.find("]]></Message>")]
         response.close()
         return encodedFoyu

@@ -100,7 +100,6 @@ class LRUCache:
             result.append(self.P[pointer.key].val)
             pointer = pointer.next
             if not pointer:
-                print 'done'
+                print 'get all ac_comments done'
             
-        print 'out'
         return result

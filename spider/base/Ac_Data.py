@@ -38,7 +38,7 @@ class Ac_Data():
         row.set_layer(int(data[3]))
         row.set_acid(int(data[4]))
         row.set_delete(int(data[5]))
-        row.set_delete(int(data[6]))
+        row.set_siji(int(data[6]))
         row.set_check_time(data[7])
         
         return row
@@ -48,20 +48,26 @@ class Ac_Data():
             #有的投稿什么都没有
             return
         
-        if data.get_delete() == 1\
-        or data.get_siji() == 1:
-            try:
-                self.db_proc.ACComments.insert(self.lru.get(data.get_cid()))
-            except Exception as e:
-                #永远不应该走到这里
-                print e
-                pass
-        else:
+        #所有评论，只要不是已经删除的，都先放入lru cache中
+        if data.get_delete() != 1:
             try:
                 self.lru.set(data.get_cid(), data)
             except Exception as e:
-                print e
                 #在多线程并发的时候，容易出现头结点被同时操作的情况，先跑跑看，以后再看是不是需要加锁
+                pass
+        
+        #再分别放入删除表和司机表中，注意如果一条评论既是司机也被删除，那么删除表中应当有记录
+        if data.get_delete() == 1\
+        or data.get_siji() == 1:
+            try:
+                insert_data = self.lru.get(data.get_cid())
+                #代码没用，待删除
+                insert_data.set_delete(data.get_delete())
+                insert_data.set_siji(data.get_siji())
+                
+                self.db_proc.ACComments.insert(insert_data)
+            except Exception:
+                #永远不应该走到这里
                 pass
             
     def save(self):

@@ -22,6 +22,8 @@ import re
 
 #搜索的SQL实例
 ac_finder = ac_comments()
+#留言的SQL实例
+ds_commentor = ds_comments()
 
 #暂时不校验前端POST的csrf
 #留言的添加和刷新
@@ -78,20 +80,14 @@ def refresh_ds_comments(request):
                 json_result['status'] = 'bad word!'
             else:
                 if position == '0': #用户操作为新建一条留言
-                    new_comment = db_commentdb(userName=username,
-                                               contents=content, 
-                                               sortDate=date,
-                                               postDate=date)
-                    new_comment.save() #直接插入数据到留言表即可
+                    #直接插入数据到留言表即可
+                    ds_commentor.new_comment(username, content, date, date)
                 else: #用户操作为评论别人的留言
-                    new_comment2 = db_comment2db(cid=position,
-                                                userName=username,
-                                                contents=content,
-                                                postDate=date)
-                    new_comment2.save() #先插入数据到留言评论表
+                    #先插入数据到留言评论表'''
+                    #再更新留言表的时间即可
+                    #这两步要放在一个事务里，否则会出现数据库来不及刷盘的问题
+                    ds_commentor.add_comment(position, username, content, date)
                     
-                    db_commentdb.objects.filter(cid=position).update(sortDate=date) #再更新留言表的时间即可
-    
     except Exception:
         return JsonResponse(json_result)
     

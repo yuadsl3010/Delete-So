@@ -1,4 +1,4 @@
-from django.db import connection, models
+from django.db import connection, models, transaction
 
 class ac_comments(models.Manager):
     def search(self, sql, *args):
@@ -13,19 +13,54 @@ class ac_comments(models.Manager):
                 row['cid'] = obj[0]
                 row['content'] = obj[1]
                 row['userName'] = obj[2]
-                row['acid'] = obj[5]
-                row['layer'] = obj[4]
-                row['isDelete'] = obj[7]
-                row['type'] = obj[12]
-                row['title'] = obj[13]
-                row['up'] = obj[14]
-                row['postTime'] = obj[15]
-                row['url'] = obj[16]
+                row['layer'] = obj[3]
+                row['acid'] = obj[4]
+                row['isDelete'] = obj[5]
+                row['type'] = obj[9]
+                row['title'] = obj[10]
+                row['up'] = obj[11]
+                row['postTime'] = obj[12]
+                row['url'] = obj[13]
                 rows.append(row)
         except Exception:
             pass
             
         return rows
+    
+class ds_comments(models.Manager):
+    def new_comment(self, *args):
+        sql = '''
+        INSERT INTO commentdb_test(userName, contents, sortDate, postDate)
+        VALUES (%s, %s, %s, %s)
+        '''
+        try:
+            cursor = connection.cursor()
+            cursor.execute(sql, args)
+        except Exception:
+            pass
+            
+        return 
+    
+    def add_comment(self, *args):
+        sql1 = '''
+        INSERT INTO comment2db_test(cid, userName, contents, postDate)
+        VALUES (%s, %s, %s, %s)
+        '''
+        sql2 = '''
+        UPDATE commentdb_test SET sortDate = %s
+        WHERE cid = %s
+        '''
+        try:
+            cursor = connection.cursor()
+            cursor.execute(sql1, args)
+            sid = transaction.savepoint()
+            cursor.execute(sql2, (args[3], args[0]))
+            transaction.savepoint_commit(sid)
+        except Exception as e:
+            transaction.savepoint_rollback(sid)
+            pass
+        
+        return
     
 # Create your models here.
 class db_status(models.Model):   
@@ -47,7 +82,7 @@ class db_commentdb(models.Model):
     contents = models.CharField(max_length=10000)
     
     class Meta:     
-        db_table = 'commentdb' 
+        db_table = 'commentdb_test' 
     
 class db_comment2db(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -57,7 +92,7 @@ class db_comment2db(models.Model):
     contents = models.CharField(max_length=10000)
     
     class Meta:     
-        db_table = 'comment2db' 
+        db_table = 'comment2db_test' 
 
 class db_ac_contents_info(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -74,13 +109,10 @@ class db_ac_contents_delete(models.Model):
     cid = models.IntegerField(primary_key=True)
     content = models.CharField(max_length=100000)
     userName = models.CharField(max_length=50)
-    quoteCid = models.IntegerField()
     layer = models.IntegerField()
     acid = models.IntegerField()
-    height = models.IntegerField()
     isDelete = models.IntegerField()
     siji = models.IntegerField()
-    zuipao = models.IntegerField()
     checkTime = models.DateTimeField(max_length=50)
     
     class Meta:     
@@ -90,13 +122,10 @@ class db_ac_contents_siji(models.Model):
     cid = models.IntegerField(primary_key=True)
     content = models.CharField(max_length=100000)
     userName = models.CharField(max_length=50)
-    quoteCid = models.IntegerField()
     layer = models.IntegerField()
     acid = models.IntegerField()
-    height = models.IntegerField()
     isDelete = models.IntegerField()
     siji = models.IntegerField()
-    zuipao = models.IntegerField()
     checkTime = models.DateTimeField(max_length=50)
     
     class Meta:     

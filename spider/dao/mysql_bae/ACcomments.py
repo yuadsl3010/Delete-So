@@ -89,16 +89,14 @@ class ACcomments(object):
                                data.get_delete(), \
                                data.get_siji(), \
                                data.get_check_time()))
-            except Exception as e:
-                print e
+            except Exception:
                 pass
             
             cursor.close()
             conn.commit()
             conn.close()
               
-        except Exception as e:
-            print e
+        except Exception:
             pass
             
         return 0
@@ -152,7 +150,7 @@ class ACcomments(object):
             cursor.close();
             conn.commit();
             conn.close();
-        except Exception as e:
+        except Exception:
             pass
         
         return result
