@@ -415,6 +415,7 @@ ol {
 .text-show-view {
     margin: 10px;
     padding-right: 150px;
+    word-break: break-all;
 }
 
 .nav-pills > li.active > a,
@@ -512,11 +513,6 @@ ol {
     margin-left: auto;
 }
 
-@media (min-width: 0px) {
-    .container {
-        max-width: 728px;
-    }
-}
 div:before, div:after{
     display: table;
     content: " ";
@@ -967,7 +963,7 @@ img {
 
 .cell {
     padding: 10px;
-    font-size: 14px;
+    font-size: 1em;
     line-height: 120%;
     text-align: left;
 }
@@ -1081,23 +1077,6 @@ Home Page
     width: 100%;
 }
 
-@media screen and (min-width: 0px) {
-    .navbar-brand {
-        float: left;
-        /*margin-left: -15px;*/
-        margin-right: 5px;
-    }
-
-    .navbar-nav {
-        float: left;
-        margin-top: 0;
-        margin-bottom: 0;
-    }
-
-    .navbar-nav > li {
-        float: left;
-    }
-}
 
 .show-menu {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -1277,97 +1256,6 @@ Mobile
     background: transparent;
 }
 
-@media screen and (min-width: 0px) {
-    .navbar-form .btn-block{
-        width: 80px;
-        border-radius: 6px;
-        margin-top: -10px;
-        padding: 8px 15px !important;
-        font-family: "Hevetica Neue", "Lucida Grande", "微软雅黑";
-    }
-}
-@media screen and (max-width: 1000px) {
-    #menu {
-        position: absolute;
-        display: none;
-        background: #164b78;
-        top: 0px;
-        left: 0px;
-    }
-
-    #menu li {
-        width: 100%;
-        margin-bottom: 1px;
-    }
-
-    .navbar-bar-logo .show-menu {
-        color: #2e9fff;
-        border: 2px solid #e4e7ee;
-        margin-top: 10px;
-    }
-    .header-navigation .navbar-form {
-        padding-top: initial;
-    }
-    .show-menu {
-        display: block;
-        position: absolute;
-        right: 0px;
-        top: 0px;
-        font-size: 14px;
-        font-family: inherit;
-        font-weight: 400;
-        font-style: normal;
-        color: white;
-        margin-left: 15px;
-        margin-right: 15px;
-        margin-top: 35px;
-        padding: 8px 15px;
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        border-radius: 4px;
-        background: transparent;
-        z-index: 1000;
-    }
-
-    input[type="text"] {
-        width: 100%;
-    }
-
-    .bar-right {
-        float: initial;
-    }
-
-    .navbar-left {
-        float: inherit;
-    }
-
-    .navbar-form .form-group {
-        display: block;
-    }
-
-    .navbar-form .btn-block{
-        width: inherit;
-        border-radius: 6px;
-        margin-top: 10px;
-        padding: inherit;
-        font-family: "Hevetica Neue", "Lucida Grande", "微软雅黑";
-    }
-
-    .mobile-logo {
-        display: block;
-    }
-}
-
-@media (min-width: 992px) {
-    .container {
-        max-width: 940px;
-    }
-}
-@media (min-width: 1200px) {
-    .container {
-        max-width: 1170px;
-    }
-}
-
 .meet-delete-so {
     padding-top: 100px;
     padding-bottom: 0;
@@ -1377,6 +1265,7 @@ Mobile
     background-color: #fff5d1;
     position: relative;
     overflow: hidden;
+    background-size: cover; 
 }
 
 .header-navigation span.animated {

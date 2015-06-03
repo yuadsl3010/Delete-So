@@ -73,22 +73,6 @@ function build_ac_comments(data) {
             + '<div style="padding-left: 25px"><p class="subtext pocket-inserted">' + 'UP主 <a href="javascript:">' + val.up + '</a> | ' + val.postTime + ' | 详见&gt; ' + '<a class="comhead" target="_blank" href="' + val.url + '">ac' + val.acid + '</a>'+'</p></div></div>';
         html += _html;
         html += '<div class="RightPost">' + '<h4><span class="badge-info">#' + val.layer + '</span>&nbsp;<b>' + val.userName + '</b>&nbsp</h4>' + '<div class="text-show-view"><p>' + rePrint(val.content) + '</p></div></div>';
-        //下面这段代码是做楼层叠加的，首页现在要展示被删评论，所以现在不需要了
-        /*
-        var _commentSubHtml="";
-        $.each(_comments,function(ind2,val2){
-            _commentSubHtml+='<div class ="comments">';
-            _commentSubHtml+='<div class="author-comment add">'
-                +'<span class="comhead"><a href="javascript:">' + val2.layer + 'L by ' + val2.userName+'</a></span></div>'
-                +'<div class="comment add"><p>'+val2.content+'</p>'
-                +'</div>';
-        });
-        $.each(_comments,function(){
-            _commentSubHtml += '</div>';
-        });
-        var _commentHtml='<div class="hidden" style="margin-left:25px" id='+ ind +'-comments'+'>'
-            +_commentSubHtml+'</div>';
-        html += _commentHtml;*/
         html += '</div>';
     });
     

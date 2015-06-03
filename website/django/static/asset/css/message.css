@@ -412,11 +412,9 @@ center alert
 top alert
 */
 #notifications-top-center {
-  	position: fixed;
   	left: 0px;
   	top: 250px;
   	width: 100%;
-  	height: 50px;
     z-index: 2;
 }
 
